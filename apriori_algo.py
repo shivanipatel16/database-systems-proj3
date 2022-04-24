@@ -1,7 +1,6 @@
 import pandas as pd
 from itertools import chain, combinations
 
-    # TODO: get frequent 1 itemsets
     #TODO: for generate kth candidate set instead of df.columns maybe do Lk.columns. Write down on ipad and check
 
 def first_iteration(df,num_trans):
@@ -31,6 +30,7 @@ def generate_kth_candidate_set(df,Lk_1,num_trans):  # create kth candidate set u
     for i in range(0, num_cols):
         for j in range(i + 1, num_cols):
             new_colname = [df.columns[i], df.columns[j]]
+            #new_colname = [df.columns[i], Lk_1[j]]
             count = (df.values[:, i] & df.values[:, j]).sum()
             cK.loc[len(cK.index)] = [new_colname, count] #append to dataframe the new itemset and the count
             LK = generate_kth_frequent_itemset(new_colname,Lk_1,count,LK,num_trans)
