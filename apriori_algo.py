@@ -1,19 +1,13 @@
 import pandas as pd
 from itertools import chain, combinations
 
-# issubset function returns true if all elements in set are in another set
-    # create a table containing support count of each item in the dataset. This will be the candidate set
-    # compare each item in the candidate set to the min support. If less than min supp, remove the items. This gives the itemset L1.
-    # create second candidate set using join of Lk-1 and Lk-1.
-    # Check all subsets of an itemset to see if they are frequent. If not frequent, then remove the itemset.
-    # Find support of the itemsets
-    # compare each item in the second candidate set to the min support. If less than min supp, remove the items. This gives the itemset L2.
     # TODO: get frequent 1 itemsets
+    #TODO: for generate kth candidate set instead of df.columns maybe do Lk.columns. Write down on ipad and check
 
 def first_iteration(df,num_trans):
     L1 = pd.DataFrame(columns=['Itemset', 'Support'])
     num_cols = df.shape[1]
-    c1 = pd.DataFrame(columns=['Itemset', 'Count'])
+    c1 = pd.DataFrame(columns=['Itemset', 'Count'])  # create a table containing support count of each item in the dataset. This will be the candidate set
     for i in range(0, num_cols):
         count = df.values[:, i].sum()
         c1.loc[len(c1.index)] = [[df.columns[i]], count]
@@ -23,14 +17,14 @@ def first_iteration(df,num_trans):
 def get_frequent_items_first_pass(L1, count,num_trans, df, i):
     min_supp = 0.01
     supp = check_support(count, num_trans)
-    if supp >= min_supp:
+    if supp >= min_supp: #compare each item in the candidate set to the min support. If less than min supp, remove the items.This gives the itemset L1.
         L1.loc[len(L1.index)] = [df.columns[i], supp * 100]
     # if supp < min_supp:
     #     print("PRUNED")
     #     print([df.columns[i]], df.values[:, i].sum())
     return L1
 
-def generate_kth_candidate_set(df,Lk_1,num_trans):
+def generate_kth_candidate_set(df,Lk_1,num_trans):  # create kth candidate set using join of Lk-1 and Lk-1.
     num_cols = df.shape[1]
     cK = pd.DataFrame(columns=['Itemset', 'Count'])
     LK = pd.DataFrame(columns=['Itemset', 'Support'])
