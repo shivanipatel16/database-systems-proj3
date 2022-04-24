@@ -24,7 +24,7 @@ def get_frequent_items_first_pass(L1, count,num_trans, df, i):
     min_supp = 0.01
     supp = check_support(count, num_trans)
     if supp >= min_supp:
-        L1.loc[len(L1.index)] = [{df.columns[i]}, supp * 100]
+        L1.loc[len(L1.index)] = [df.columns[i], supp * 100]
     # if supp < min_supp:
     #     print("PRUNED")
     #     print([df.columns[i]], df.values[:, i].sum())
@@ -43,14 +43,16 @@ def generate_kth_candidate_set(df,L1,num_trans):
     return L2,c2
 
 def generate_kth_frequent_itemset(colname,L1,count,L2,num_trans):
-    subset = list((chain.from_iterable(combinations(colname, r) for r in range(1,len(colname)))))
+    min_supp = 0.01
+    subset = set((chain.from_iterable(combinations(colname, r) for r in range(1,len(colname)))))
     is_subset_list = []
-    L1_set = frozenset(L1.loc[:, "Itemset"])
+    L1_set = L1.values[:, 0]
     for i in subset:
-        is_subset_list.append(frozenset(i).issubset(L1_set))
+        is_subset_list.append(set(i).issubset(L1_set))
     if all(is_subset_list) == True:
         support = check_support(count, num_trans)
-        L2.loc[len(L2.index)] = [colname, support]  #append to dataframe the new itemset and the count
+        if support >= min_supp:
+            L2.loc[len(L2.index)] = [colname, support  * 100]  #append to dataframe the new itemset and the count
     return L2
 
 def check_support(count, num_of_transactions):
