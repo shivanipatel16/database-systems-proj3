@@ -137,22 +137,24 @@ def add_frequent_itemset(frequent_itemsets, L_k):
 
     return frequent_itemsets
 
-def get_support(right_side,L_k):
-    support = L_k[L_k["item"] == right_side]
+def get_support(right_side,L_all):
+    print("L_all IS")
+    print(L_all)
+    support = L_all.loc[L_all['Itemset'] == right_side]['Support'].values
     print(support)
     return support
 
-def calculate_conf(support,items,L_k):
+def calculate_conf(support,items,L_all):
         #Get the support of left and right side of association rule
         #TODO: Get support of left side
         conf = 1
-        print(items)
         if len(items) != 1:
             for i in itertools.combinations(items, len(items) - 1):  # gets all combos of items with length - 1.
                   right_side = set(items) - set(i) # subset subtraction. To get the single item that is not on the left side
                   left_side = set(i)
                   sup_left_side = support
-                  sup_right_side = get_support(right_side,L_k)
+                  sup_right_side = get_support(right_side,L_all)
+                  #print(sup_right_side)
                   conf = sup_right_side / sup_left_side
                   print(left_side, "=>", right_side, "Conf:", conf, "Support:", support)
         return conf
@@ -177,7 +179,6 @@ def main(frequent_itemsets_=None):
     L_1 = first_iteration(df, num_trans, min_supp) # run the first iteration of the algo for itemsets of 1
     frequent_itemsets = add_frequent_itemset(frequent_itemsets, L_1)
     frequent_itemsets_copy = frequent_itemsets
-    frequent_itemsets_copy2 = frequent_itemsets
 
     print("==Frequent {} itemsets(min_sup= {}%)".format(k, min_supp))
     #print(L_1)
@@ -195,14 +196,17 @@ def main(frequent_itemsets_=None):
         #print(L_k)
         L_k_1 = L_k
         k += 1
-    # while not frequent_itemsets_copy2.empty():
-    #     support, items = frequent_itemsets_copy.get()
-    #     #print(conf1)
+
+    frequent_itemsets_copy2 = frequent_itemsets
+    L_all = pd.DataFrame(columns=['Itemset', 'Support'])
+    while not frequent_itemsets_copy2.empty():
+        support, items = frequent_itemsets_copy2.get()
+        L_all.loc[len(L_all.index)] = [items, support]  # append to dataframe the new itemset and the count
 
     while not frequent_itemsets_copy.empty():
         support, items = frequent_itemsets_copy.get()
-        conf1 = calculate_conf(support, items, L_k)
-        #print(conf1)
+        conf1 = calculate_conf(support, items, L_all)
+        print(conf1)
 
     
     # find all itemsets that are > 1 size
