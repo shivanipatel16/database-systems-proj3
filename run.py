@@ -139,9 +139,10 @@ def add_frequent_itemset(frequent_itemsets, L_k):
     return frequent_itemsets
 
 def get_support(right_side,L_all):
-    print("L_all IS")
-    print(L_all)
-    support = L_all.loc[L_all['Itemset'] == right_side]['Support'].values
+    right_side = list(right_side)
+    print(right_side)
+    #support = L_all.loc[L_all['Itemset'] == right_side]['Support'].values
+    support = 1
     #print(support)
     return support
 
@@ -209,12 +210,7 @@ def main(frequent_itemsets_=None):
 
     while not frequent_itemsets_copy.empty():
         support, items = frequent_itemsets_copy.get()
-        conf1 = calculate_conf(support, items, L_all)
-        print(conf1)
-
-    
-    # find all itemsets that are > 1 size
-
+        confidence = calculate_conf(support, items, L_all)
 
     with open("output.txt", "w") as f:
         print("==Frequent itemsets (min_sup={0:.3g}%)".format(min_supp*100), file=f)
@@ -228,8 +224,6 @@ def main(frequent_itemsets_=None):
             print("{itemset}, {supp:.3f}%".format(itemset=itemset, supp=supp), file=f)
         # for supp, itemset in confidence_rules_print:
         #     print("{itemset}, {conf:.3f}%".format(itemset=itemset, conf=conf), file=f)
-
-
 
 
 if __name__ == "__main__":
