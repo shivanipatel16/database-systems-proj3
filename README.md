@@ -19,9 +19,7 @@ python3 run.py INTEGRATED-DATASET.csv {min_sup} {min_conf}
 
 ## Detailed Description:
 
-### NYC Open Data set we used:
-[Motor Vehicle Collisions - Crashed](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
-
+### NYC Open Data set we used: [Motor Vehicle Collisions - Crashed](https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95)
 The Motor Vehicle Collisions crash table contains details on the crash event. Each row represents a crash event. The Motor Vehicle Collisions data tables contain information from all police reported motor vehicle collisions in NYC.
 
 ### High-level procedure to make INTEGRATED-DATASET.csv:
@@ -32,7 +30,7 @@ The Motor Vehicle Collisions crash table contains details on the crash event. Ea
 - Thus we were left with 166,434 rows x 133 columns: 
     - Some of the columns we have in our INTEGRATED-DATASET.csv: PERSONS INJURED,PERSONS KILLED,PEDESTRIANS INJURED,PEDESTRIANS KILLED,CYCLIST INJURED,CYCLIST KILLED,MOTORIST INJURED,MOTORIST KILLED,QUEENS - BOROUGH,BROOKLYN - BOROUGH,...,Failure to Yield Right-of-Way - CONTRIBUTING FACTOR VEHICLE 2
 
-Note: make-dataset.py is the script we run to make our INTEGRATED-DATASET.csv.
+Note: make-dataset.py is the script we ran to make our INTEGRATED-DATASET.csv.
 
 ### Justification of Choice of Dataset:
 We believe that this dataset of Motor Vehicle Collisions crash table provided interesting information as to whether collisions in NYC are as reckless as people may think. Where do these collosions usually happen? Is there a link between the reason why crash collosions happen with its location? What about injury rates? Is there an association with the injury rates with the reason why an accident occured? These were all questions that we decided we wanted to invest and learn more about about.
