@@ -4,6 +4,7 @@ import itertools
 import numpy as np
 from queue import PriorityQueue
 
+
 def valid_args(args):
     """
     validates input arguments to make sure exists and min_sup and min_conf are both between 0-1
@@ -16,8 +17,8 @@ def valid_args(args):
         min_conf = float(min_conf)
         if min_supp > 1 or min_supp < 0 or min_conf > 1 or min_conf < 0:
             return False
-        if not os.path.isfile(dataset_file):
-            return False
+        # if not os.path.isfile(dataset_file):
+        #     return False
         return True
     except Exception as e:
         print(e)
@@ -136,19 +137,24 @@ def add_frequent_itemset(frequent_itemsets, L_k):
 
     return frequent_itemsets
 
-def get_support():
-    support = 0
+def get_support(right_side,L_k):
+    support = L_k[L_k["item"] == right_side]
+    print(support)
     return support
 
-def calculate_conf(support,items):
+def calculate_conf(support,items,L_k):
         #Get the support of left and right side of association rule
         #TODO: Get support of left side
+        conf = 1
+        print(items)
         if len(items) != 1:
             for i in itertools.combinations(items, len(items) - 1):  # gets all combos of items with length - 1.
-                right_side = list(set(items) - set(i))  # subset subtraction. To get the single item that is not on the left side
-                sup_right_side = get_support(right_side)
-                sup_left_side = support
-                conf = sup_right_side  / sup_left_side
+                  right_side = set(items) - set(i) # subset subtraction. To get the single item that is not on the left side
+                  left_side = set(i)
+                  sup_left_side = support
+                  sup_right_side = get_support(right_side,L_k)
+                  conf = sup_right_side / sup_left_side
+                  print(left_side, "=>", right_side, "Conf:", conf, "Support:", support)
         return conf
 
 def main(frequent_itemsets_=None):
@@ -171,6 +177,7 @@ def main(frequent_itemsets_=None):
     L_1 = first_iteration(df, num_trans, min_supp) # run the first iteration of the algo for itemsets of 1
     frequent_itemsets = add_frequent_itemset(frequent_itemsets, L_1)
     frequent_itemsets_copy = frequent_itemsets
+    frequent_itemsets_copy2 = frequent_itemsets
 
     print("==Frequent {} itemsets(min_sup= {}%)".format(k, min_supp))
     #print(L_1)
@@ -179,16 +186,23 @@ def main(frequent_itemsets_=None):
     L_k_1 = L_1
     k += 1
 
+
     while len(L_k_1) != 0:
         L_k = generate_kth_candidate_set(df, L_k_1 , num_trans, min_supp)
         frequent_itemsets = add_frequent_itemset(frequent_itemsets, L_k)
 
         print("==Frequent {} itemsets(min_sup= {}%)".format(k, min_supp))
         #print(L_k)
-
-
         L_k_1 = L_k
         k += 1
+    # while not frequent_itemsets_copy2.empty():
+    #     support, items = frequent_itemsets_copy.get()
+    #     #print(conf1)
+
+    while not frequent_itemsets_copy.empty():
+        support, items = frequent_itemsets_copy.get()
+        conf1 = calculate_conf(support, items, L_k)
+        #print(conf1)
 
     
     # find all itemsets that are > 1 size
@@ -199,14 +213,13 @@ def main(frequent_itemsets_=None):
         frequent_itemsets_print = list()
         confidence_rules_print = list()
         while not frequent_itemsets.empty():
-            frequent_itemsets_print = [frequent_itemsets.get()] + frequent_itemsets_print
-            support, items = frequent_itemsets_copy.get()
-            confidence_rules_print = [calculate_conf(support,items)] + confidence_rules_print
+             frequent_itemsets_print = [frequent_itemsets.get()] + frequent_itemsets_print
+             #confidence_rules_print = [calculate_conf(support,items)] + confidence_rules_print
 
         for supp, itemset in frequent_itemsets_print:
             print("{itemset}, {supp:.3f}%".format(itemset=itemset, supp=supp), file=f)
-        for supp, itemset in confidence_rules_print:
-            print("{itemset}, {conf:.3f}%".format(itemset=itemset, conf=conf), file=f)
+        # for supp, itemset in confidence_rules_print:
+        #     print("{itemset}, {conf:.3f}%".format(itemset=itemset, conf=conf), file=f)
 
 
 
