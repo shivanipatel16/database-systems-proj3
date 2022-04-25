@@ -41,7 +41,15 @@ We believe that this dataset of Motor Vehicle Collisions crash table provided in
 **make-dataset.py** creates the INTEGRATED-DATASET.csvfile as specified in section earlier.
 
 **run.py**
-1. 
+1. valid_args(): check input to make sure all inputs are valid and return usage if there is incorrect usage
+2. main(): Convert INTEGRATED-DATASET.csv into pandas df
+3. first_iteration() & get_frequent_items_first_pass(): Find all itemset of size 1 that meet the minimum support and call this L_1.
+4. generate_kth_candidate_set( & generate_kth_frequent_itemset(): Iterate on L_k-1 to find L_k by finding the itemsets of size k using a join from L_k-1 and the original columns from INTEGRATED-DATASET.csv. Prune all itemsets of size k that contains subsets of size k-1 that are not in L_1. Prune all itemsets of size k that do not meet the minimum support.
+5. main(): Repeat step 6 until L_k-1 is the empty set.
+6. main(): Join all L_1, L_2, ..., L_k-1 , and let's call it frequent-itemsets
+7. TODO: Form the association rules of all frequent-itemsets such that there is 1 item on the left side and 1 or more on the right side. The item on the left side must not be on the right side as well.
+8. TODO: For every association rule, compute the confidence by computing the support of the the left side union right side divided by the support of the left side. Keep all rules that need the confidence threshold. 
+9. main(): Generate output.txt file. 
 
 ## Compelling Run:
 
