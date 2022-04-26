@@ -174,6 +174,9 @@ def get_support(left_side, L_all):
 
 def calculate_conf(support, items, L_all, L_conf, min_conf):
         # Get the support of left and right side of association rule
+        #calculates the confidence by creating all the subsets of the itemset. The right_side only has 1 item and the left_side has the other items of the subset. 
+        #Association Rule: Left_side --> Right_side
+        #Conf = (Supp right_side U left_side)/ (Supp_left_side)
         conf = 1
         if len(items) != 1:
             for i in itertools.combinations(items, len(items) - 1):  # gets all combos of items with length - 1.
@@ -181,8 +184,8 @@ def calculate_conf(support, items, L_all, L_conf, min_conf):
                   left_side = set(i)
                   sup_union = support
                   sup_left_side = get_support(left_side, L_all)
-                  conf = sup_union / sup_left_side
-                  if conf >= min_conf:
+                  conf = sup_union / sup_left_side #calcalutes confidence
+                  if conf >= min_conf: #checks if confidence meets threshold
                     L_conf.loc[len(L_conf.index)] = [left_side, right_side, conf * 100, support]  # append to dataframe the new itemset and the count
         return L_conf,support
 
@@ -249,11 +252,11 @@ def main():
         L_k_1 = L_k
         k += 1
 
-    frequent_itemsets_copy.queue = copy.deepcopy(frequent_itemsets.queue)
-    frequent_itemsets_copy2.queue = copy.deepcopy(frequent_itemsets.queue)
+    frequent_itemsets_copy.queue = copy.deepcopy(frequent_itemsets.queue) #copy of priority queue to create dataframe that has confidence 
+    frequent_itemsets_copy2.queue = copy.deepcopy(frequent_itemsets.queue) #copy of priority queue to create dataframe that has all the frequent itemsets
 
-    L_all = pd.DataFrame(columns=['Itemset', 'Support'])
-    L_conf = pd.DataFrame(columns=['Left', 'Right', 'Confidence', 'Support'])
+    L_all = pd.DataFrame(columns=['Itemset', 'Support']) #All frequent itemsets dataframe
+    L_conf = pd.DataFrame(columns=['Left', 'Right', 'Confidence', 'Support']) #dataframe that has confidence
 
     while not frequent_itemsets_copy2.empty():
         support, items = frequent_itemsets_copy2.get()
@@ -261,9 +264,9 @@ def main():
 
     while not frequent_itemsets_copy.empty():
         support, items = frequent_itemsets_copy.get()
-        L_conf, confidence = calculate_conf(support, items, L_all, L_conf, min_conf)
+        L_conf, confidence = calculate_conf(support, items, L_all, L_conf, min_conf) #calculates confidence
 
-    confidence_rules = add_confident_itemset(confidence_rules, L_conf)
+    confidence_rules = add_confident_itemset(confidence_rules, L_conf) #adds to priority queue 
 
     print_output_file(frequent_itemsets, confidence_rules, min_supp, min_conf)
 
