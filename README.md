@@ -51,6 +51,8 @@ We believe that this dataset of Motor Vehicle Collisions crash table provided in
 8. calculate_conf(): For every association rule, compute the confidence by computing the support of the the left side union right side divided by the support of the left side. Keep all rules that need the confidence threshold. 
 9. print_output_file(): Generate output.txt file. 
 
+We implemented that original a-priori algorithm from the description of a-priori in Section 2.1.
+
 ## Compelling Run: 
 ```angular2html
 run.py INTEGRATED-DATASET.csv 0.05 0.70
