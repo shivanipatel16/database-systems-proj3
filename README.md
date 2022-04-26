@@ -47,9 +47,9 @@ We believe that this dataset of Motor Vehicle Collisions crash table provided in
 4. generate_kth_candidate_set( & generate_kth_frequent_itemset(): Iterate on L_k-1 to find L_k by finding the itemsets of size k using a join from L_k-1 and the original columns from INTEGRATED-DATASET.csv. Prune all itemsets of size k that contains subsets of size k-1 that are not in L_1. Prune all itemsets of size k that do not meet the minimum support.
 5. main(): Repeat step 6 until L_k-1 is the empty set.
 6. main(): Join all L_1, L_2, ..., L_k-1 , and let's call it frequent-itemsets
-7. TODO: Form the association rules of all frequent-itemsets such that there is 1 item on the left side and 1 or more on the right side. The item on the left side must not be on the right side as well.
-8. TODO: For every association rule, compute the confidence by computing the support of the the left side union right side divided by the support of the left side. Keep all rules that need the confidence threshold. 
-9. main(): Generate output.txt file. 
+7. calculate_conf(): Form the association rules of all frequent-itemsets such that there is 1 item on the left side and 1 or more on the right side. The item on the left side must not be on the right side as well.
+8. calculate_conf(): For every association rule, compute the confidence by computing the support of the the left side union right side divided by the support of the left side. Keep all rules that need the confidence threshold. 
+9. print_output_file(): Generate output.txt file. 
 
 ## Compelling Run: 
 ```angular2html
