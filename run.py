@@ -135,22 +135,36 @@ def add_frequent_itemset(frequent_itemsets, L_k):
         item, supp = i
         item = sorted(list(item))
         frequent_itemsets.put((supp, item))
-
     return frequent_itemsets
+
+def add_confident_itemset(confident_itemsets, L_conf):
+    """
+        add confident itemsets to priority queue for final output.txt file
+
+        confident_items: priority queue where each itemset is ordered by the confident
+        L_k: pandas df that represents the valid itemsets with its confident of size k
+        """
+
+    for i in L_conf.values:
+        left, right, conf, supp = i
+        left = sorted(list(left))
+        right = list(right)
+        my_tuple = (left, right, supp)
+        confident_itemsets.put((conf, my_tuple))
+    return confident_itemsets
 
 def get_support(left_side,L_all):
     left_side = list(left_side)
     left_side = sorted(left_side)
     support = 0
     index = 0
-    #support = L_all.loc[L_all['Itemset'] == right_side]['Support'].values
     for i in L_all['Itemset']:
         if (i == left_side):
             support = L_all['Support'][index]
         index += 1
     return support
 
-def calculate_conf(support,items,L_all):
+def calculate_conf(support,items,L_all, L_conf, min_conf):
         #Get the support of left and right side of association rule
         #TODO: Get support of left side
         conf = 1
@@ -161,8 +175,9 @@ def calculate_conf(support,items,L_all):
                   sup_union = support
                   sup_left_side = get_support(left_side, L_all)
                   conf = sup_union / sup_left_side
-                  print(left_side, "=>", right_side, "Conf:", conf * 100, "Support:", support)
-        return conf
+                  if conf >= min_conf:
+                    L_conf.loc[len(L_conf.index)] = [left_side, right_side, conf * 100, support]  # append to dataframe the new itemset and the count
+        return L_conf,support
 
 def main(frequent_itemsets_=None):
     args = tuple(sys.argv[1:])
@@ -181,8 +196,8 @@ def main(frequent_itemsets_=None):
     frequent_itemsets = PriorityQueue()
     frequent_itemsets_copy = PriorityQueue()
     frequent_itemsets_copy2 = PriorityQueue()
-
     confidence_rules = PriorityQueue()
+
     num_trans = df.shape[0] # get number of rows of dataframe which represents the transactions
     L_1 = first_iteration(df, num_trans, min_supp) # run the first iteration of the algo for itemsets of 1
     frequent_itemsets = add_frequent_itemset(frequent_itemsets, L_1)
@@ -208,28 +223,35 @@ def main(frequent_itemsets_=None):
     frequent_itemsets_copy2.queue = copy.deepcopy(frequent_itemsets.queue)
 
     L_all = pd.DataFrame(columns=['Itemset', 'Support'])
+    L_conf = pd.DataFrame(columns=['Left', 'Right', 'Confidence', 'Support'])
+
     while not frequent_itemsets_copy2.empty():
         support, items = frequent_itemsets_copy2.get()
         L_all.loc[len(L_all.index)] = [items, support]  # append to dataframe the new itemset and the count
 
-
     while not frequent_itemsets_copy.empty():
         support, items = frequent_itemsets_copy.get()
-        confidence = calculate_conf(support, items, L_all)
+        L_conf, confidence = calculate_conf(support, items, L_all,L_conf, min_conf)
+
+    confidence_rules = add_confident_itemset(confidence_rules, L_conf)
 
     with open("output.txt", "w") as f:
         print("==Frequent itemsets (min_sup={0:.3g}%)".format(min_supp*100), file=f)
         frequent_itemsets_print = list()
-        confidence_rules_print = list()
         while not frequent_itemsets.empty():
              frequent_itemsets_print = [frequent_itemsets.get()] + frequent_itemsets_print
-             #confidence_rules_print = [calculate_conf(support,items)] + confidence_rules_print
+
+        confidence_rules_print = list()
+        while not confidence_rules.empty():
+            confidence_rules_print = [confidence_rules.get()] + confidence_rules_print
 
         for supp, itemset in frequent_itemsets_print:
             print("{itemset}, {supp:.3f}%".format(itemset=itemset, supp=supp), file=f)
-        # for supp, itemset in confidence_rules_print:
-        #     print("{itemset}, {conf:.3f}%".format(itemset=itemset, conf=conf), file=f)
 
+        print("==High-confidence association rules (min_conf={0:.3g}%)".format(min_conf*100), file=f)
+
+        for conf, my_tuple in confidence_rules_print:
+            print(my_tuple[0], "=>", my_tuple[1], "(Conf:", conf, "Supp:", my_tuple[2], ")", file=f)
 
 if __name__ == "__main__":
     main()
