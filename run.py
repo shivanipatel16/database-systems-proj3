@@ -140,10 +140,14 @@ def add_frequent_itemset(frequent_itemsets, L_k):
 
 def get_support(right_side,L_all):
     right_side = list(right_side)
-    print(right_side)
+    right_side = sorted(right_side)
+    support = 0
+    index = 0
     #support = L_all.loc[L_all['Itemset'] == right_side]['Support'].values
-    support = 1
-    #print(support)
+    for i in L_all['Itemset']:
+        if (i == right_side):
+            support = L_all['Support'][index]
+        index += 1
     return support
 
 def calculate_conf(support,items,L_all):
@@ -154,9 +158,9 @@ def calculate_conf(support,items,L_all):
             for i in itertools.combinations(items, len(items) - 1):  # gets all combos of items with length - 1.
                   right_side = set(items) - set(i) # subset subtraction. To get the single item that is not on the left side
                   left_side = set(i)
-                  sup_left_side = support
-                  sup_right_side = get_support(right_side, L_all)
-                  conf = sup_right_side / sup_left_side
+                  sup_union = support
+                  sup_left_side = get_support(left_side, L_all)
+                  conf = sup_union / sup_left_side
                   print(left_side, "=>", right_side, "Conf:", conf, "Support:", support)
         return conf
 
@@ -207,6 +211,7 @@ def main(frequent_itemsets_=None):
     while not frequent_itemsets_copy2.empty():
         support, items = frequent_itemsets_copy2.get()
         L_all.loc[len(L_all.index)] = [items, support]  # append to dataframe the new itemset and the count
+
 
     while not frequent_itemsets_copy.empty():
         support, items = frequent_itemsets_copy.get()
