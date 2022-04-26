@@ -138,14 +138,14 @@ def add_frequent_itemset(frequent_itemsets, L_k):
 
     return frequent_itemsets
 
-def get_support(right_side,L_all):
-    right_side = list(right_side)
-    right_side = sorted(right_side)
+def get_support(left_side,L_all):
+    left_side = list(left_side)
+    left_side = sorted(left_side)
     support = 0
     index = 0
     #support = L_all.loc[L_all['Itemset'] == right_side]['Support'].values
     for i in L_all['Itemset']:
-        if (i == right_side):
+        if (i == left_side):
             support = L_all['Support'][index]
         index += 1
     return support
@@ -161,7 +161,7 @@ def calculate_conf(support,items,L_all):
                   sup_union = support
                   sup_left_side = get_support(left_side, L_all)
                   conf = sup_union / sup_left_side
-                  print(left_side, "=>", right_side, "Conf:", conf, "Support:", support)
+                  print(left_side, "=>", right_side, "Conf:", conf * 100, "Support:", support)
         return conf
 
 def main(frequent_itemsets_=None):
