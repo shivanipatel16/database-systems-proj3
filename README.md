@@ -10,6 +10,7 @@ Aditi Dam (ad3707) and Shivani Patel (svp2128)
 ```angular2html
 sudo apt-get update
 sudo apt install python3-pip
+pip3 install pandas
 ```
 
 ## How to run the program:
