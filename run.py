@@ -30,12 +30,12 @@ def valid_args(args):
 
 def first_iteration(df, num_trans, min_supp):
     """
-        creates L_1 which is the valid candidate sets of size 1
+    creates L_1 which is the valid candidate sets of size 1
 
-        df: pandas dataframe that represents the rows as market baskets and each column is an item in the basket
-        num_trans: the number of transactions (row) in the df
-        min_supp: the minimum support specified at runtime as command-line argument
-        """
+    df: pandas dataframe that represents the rows as market baskets and each column is an item in the basket
+    num_trans: the number of transactions (row) in the df
+    min_supp: the minimum support specified at runtime as command-line argument
+    """
     L_1 = pd.DataFrame(columns=['Itemset', 'Support'])
     num_cols = df.shape[1]
 
@@ -70,13 +70,13 @@ def get_frequent_items_first_pass(L_1, count, num_trans, df, i, min_supp):
 
 def generate_kth_candidate_set(df, L_k_1, num_trans, min_supp):  # create kth candidate set using join of Lk-1 and Lk-1.
     """
-        creates kth candidate set using join of Lk-1 and Lk-1 and then prunes the new candidate set by checking the subsets of size k-1 and then its support
+    creates kth candidate set using join of Lk-1 and Lk-1 and then prunes the new candidate set by checking the subsets of size k-1 and then its support
 
-        df: pandas dataframe that represents the rows as market baskets and each column is an item in the basket
-        L_k_1: pandas df that represents the valid itemsets with its support of size k-1
-        num_trans: the number of transactions (row) in the df
-        min_supp: the minimum support specified at runtime as command-line argument
-        """
+    df: pandas dataframe that represents the rows as market baskets and each column is an item in the basket
+    L_k_1: pandas df that represents the valid itemsets with its support of size k-1
+    num_trans: the number of transactions (row) in the df
+    min_supp: the minimum support specified at runtime as command-line argument
+    """
     c_k = pd.DataFrame(columns=['Itemset', 'Count'])
     L_k = pd.DataFrame(columns=['Itemset', 'Support'])
 
@@ -101,13 +101,13 @@ def generate_kth_candidate_set(df, L_k_1, num_trans, min_supp):  # create kth ca
 
 def generate_kth_frequent_itemset(itemset_k, L_k_1, count, L_k, num_trans, min_supp):
     """
-        performs pruning step by checking all subsets of size k-1 of itemset of size k and making sure it is in L_k_1
-        then checks to make sure the itemset meets the minimum support threshold
+    performs pruning step by checking all subsets of size k-1 of itemset of size k and making sure it is in L_k_1
+    then checks to make sure the itemset meets the minimum support threshold
 
-        count: number of transactions that meet the criteria (in this case its the number of transactions that contain that item)
-        num_trans: the number of transactions (row) in the df
-        min_supp: the minimum support specified at runtime as command-line argument
-        """
+    count: number of transactions that meet the criteria (in this case its the number of transactions that contain that item)
+    num_trans: the number of transactions (row) in the df
+    min_supp: the minimum support specified at runtime as command-line argument
+    """
 
     subsets_k_1 = [set(i) for i in itertools.combinations(itemset_k, len(itemset_k)-1)]
 
@@ -124,17 +124,17 @@ def generate_kth_frequent_itemset(itemset_k, L_k_1, count, L_k, num_trans, min_s
 
 def check_support(count, num_of_transactions):
     """
-        simply returns the support given the count of transactions that met the criteria over the total num_of_transactions
-        """
+    simply returns the support given the count of transactions that met the criteria over the total num_of_transactions
+    """
     return float(count)/float(num_of_transactions)
 
 def add_frequent_itemset(frequent_itemsets, L_k):
     """
-        add frequent itemsets to priority queue for final output.txt file
+    add frequent itemsets to priority queue for final output.txt file
 
-        frequent_items: priority queue where each itemset is ordered by the support
-        L_k: pandas df that represents the valid itemsets with its support of size k
-        """
+    frequent_items: priority queue where each itemset is ordered by the support
+    L_k: pandas df that represents the valid itemsets with its support of size k
+    """
 
     for i in L_k.values:
         item, supp = i
@@ -145,11 +145,11 @@ def add_frequent_itemset(frequent_itemsets, L_k):
 
 def add_confident_itemset(confident_itemsets, L_conf):
     """
-        add confident itemsets to priority queue for final output.txt file
+    add confident itemsets to priority queue for final output.txt file
 
-        confident_items: priority queue where each itemset is ordered by the confident
-        L_k: pandas df that represents the valid itemsets with its confident of size k
-        """
+    confident_items: priority queue where each itemset is ordered by the confident
+    L_k: pandas df that represents the valid itemsets with its confident of size k
+    """
 
     for i in L_conf.values:
         left, right, conf, supp = i
@@ -173,10 +173,12 @@ def get_support(left_side, L_all):
     return support
 
 def calculate_conf(support, items, L_all, L_conf, min_conf):
-        # Get the support of left and right side of association rule
-        #calculates the confidence by creating all the subsets of the itemset. The right_side only has 1 item and the left_side has the other items of the subset. 
-        #Association Rule: Left_side --> Right_side
-        #Conf = (Supp right_side U left_side)/ (Supp_left_side)
+        """
+        Get the support of left and right side of association rule
+        calculates the confidence by creating all the subsets of the itemset. The right_side only has 1 item and the left_side has the other items of the subset. 
+        Association Rule: Left_side --> Right_side
+        Conf = (Supp right_side U left_side)/ (Supp_left_side)
+        """
         conf = 1
         if len(items) != 1:
             for i in itertools.combinations(items, len(items) - 1):  # gets all combos of items with length - 1.
