@@ -5,6 +5,7 @@ Aditi Dam (ad3707) and Shivani Patel (svp2128)
 - README.md
 - make-dataset.py
 - run.py
+- example-run.txt
 
 ## Install Requirements
 ```angular2html
@@ -50,6 +51,10 @@ We believe that this dataset of Motor Vehicle Collisions crash table provided in
 8. TODO: For every association rule, compute the confidence by computing the support of the the left side union right side divided by the support of the left side. Keep all rules that need the confidence threshold. 
 9. main(): Generate output.txt file. 
 
-## Compelling Run:
+## Compelling Run: 
+```angular2html
+run.py INTEGRATED-DATASET.csv 0.05 0.70
+```
 
 ### Compelling Result:
+These results are compelling because we can see that most motor collisions occur because of drivers being distracted, and we can see that many collosions occur in Mahattan. Furthermore, we can see that many injuries are due to a motorists. For example if a person is injuried, there is 76% confidence rate that they a motorist is injured. We can use this information to try to get better regulations for traffic violations and try to keep collisions rates low given that we know the target location and target vehicles that are associated with collisions. 
