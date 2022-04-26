@@ -4,6 +4,7 @@ import itertools
 import numpy as np
 from queue import PriorityQueue
 import copy
+import os
 
 
 def valid_args(args):
@@ -18,8 +19,9 @@ def valid_args(args):
         min_conf = float(min_conf)
         if min_supp > 1 or min_supp < 0 or min_conf > 1 or min_conf < 0:
             return False
-        # if not os.path.isfile(dataset_file):
-        #     return False
+        if not os.path.isfile(dataset_file):
+            print(os.path.isfile(dataset_file))
+            return False
         return True
     except Exception as e:
         print(e)
@@ -81,7 +83,7 @@ def generate_kth_candidate_set(df, L_k_1, num_trans, min_supp):  # create kth ca
     for itemset_k_1 in L_k_1['Itemset']:
         for new_item in df.columns:
             if new_item not in itemset_k_1:
-                itemset = itemset_k_1.copy()
+                itemset = set(itemset_k_1.copy())
                 itemset.add(new_item)
 
                 meets_support = np.full(num_trans, True)
@@ -89,8 +91,11 @@ def generate_kth_candidate_set(df, L_k_1, num_trans, min_supp):  # create kth ca
                     meets_support = meets_support & df[i]
 
                 count = (meets_support).sum()
-                c_k.loc[len(c_k.index)] = [itemset, count] # append to dataframe the new itemset and the count
+                c_k.loc[len(c_k.index)] = [frozenset(itemset), count] # append to dataframe the new itemset and the count
                 L_k = generate_kth_frequent_itemset(itemset, L_k_1, count, L_k, num_trans, min_supp)
+
+    L_k.drop_duplicates(subset='Itemset', inplace=True)
+
 
     return L_k
 
@@ -113,7 +118,7 @@ def generate_kth_frequent_itemset(itemset_k, L_k_1, count, L_k, num_trans, min_s
     if is_valid_k_set:
         support = check_support(count, num_trans)
         if support >= min_supp: # if support is greater than min support, then add that itemset to the frequent itemset
-            L_k.loc[len(L_k.index)] = [itemset_k, support * 100]  # append to dataframe the new itemset and the count
+            L_k.loc[len(L_k.index)] = [frozenset(itemset_k), support * 100]  # append to dataframe the new itemset and the count
 
     return L_k
 
@@ -135,6 +140,7 @@ def add_frequent_itemset(frequent_itemsets, L_k):
         item, supp = i
         item = sorted(list(item))
         frequent_itemsets.put((supp, item))
+
     return frequent_itemsets
 
 def add_confident_itemset(confident_itemsets, L_conf):
@@ -151,9 +157,10 @@ def add_confident_itemset(confident_itemsets, L_conf):
         right = list(right)
         my_tuple = (left, right, supp)
         confident_itemsets.put((conf, my_tuple))
+
     return confident_itemsets
 
-def get_support(left_side,L_all):
+def get_support(left_side, L_all):
     left_side = list(left_side)
     left_side = sorted(left_side)
     support = 0
@@ -162,11 +169,11 @@ def get_support(left_side,L_all):
         if (i == left_side):
             support = L_all['Support'][index]
         index += 1
+
     return support
 
-def calculate_conf(support,items,L_all, L_conf, min_conf):
-        #Get the support of left and right side of association rule
-        #TODO: Get support of left side
+def calculate_conf(support, items, L_all, L_conf, min_conf):
+        # Get the support of left and right side of association rule
         conf = 1
         if len(items) != 1:
             for i in itertools.combinations(items, len(items) - 1):  # gets all combos of items with length - 1.
@@ -179,7 +186,30 @@ def calculate_conf(support,items,L_all, L_conf, min_conf):
                     L_conf.loc[len(L_conf.index)] = [left_side, right_side, conf * 100, support]  # append to dataframe the new itemset and the count
         return L_conf,support
 
-def main(frequent_itemsets_=None):
+
+def print_output_file(frequent_itemsets, confidence_rules, min_supp, min_conf):
+    """
+    prints out the output file using the frequent itemsets and confidence association rules
+    """
+    with open("output.txt", "w") as f:
+
+        frequent_itemsets_print = list()
+        while not frequent_itemsets.empty():
+             frequent_itemsets_print = [frequent_itemsets.get()] + frequent_itemsets_print
+
+        confidence_rules_print = list()
+        while not confidence_rules.empty():
+            confidence_rules_print = [confidence_rules.get()] + confidence_rules_print
+
+        print("==Frequent itemsets (min_sup={0:.3g}%)".format(min_supp*100), file=f)
+        for supp, itemset in frequent_itemsets_print:
+            print("{itemset}, {supp:.3f}%".format(itemset=itemset, supp=supp), file=f)
+
+        print("==High-confidence association rules (min_conf={0:.3g}%)".format(min_conf*100), file=f)
+        for conf, my_tuple in confidence_rules_print:
+            print("{left} => {right} (Conf: {conf:.3f}%, Supp:{supp: .3f}%)".format(left=my_tuple[0], right=my_tuple[1], conf=conf, supp=my_tuple[2]), file=f)
+
+def main():
     args = tuple(sys.argv[1:])
     # error message if the arguments are invalid
     if not valid_args(args): # TODO
@@ -202,8 +232,8 @@ def main(frequent_itemsets_=None):
     L_1 = first_iteration(df, num_trans, min_supp) # run the first iteration of the algo for itemsets of 1
     frequent_itemsets = add_frequent_itemset(frequent_itemsets, L_1)
 
-    print("==Frequent {} itemsets(min_sup= {}%)".format(k, min_supp))
-    #print(L_1)
+    print("==Frequent {} itemsets(min_sup={}%)".format(k, min_supp))
+    # print(L_1)
 
     L_k = L_1 # initialize L_k
     L_k_1 = L_1
@@ -214,7 +244,7 @@ def main(frequent_itemsets_=None):
         L_k = generate_kth_candidate_set(df, L_k_1 , num_trans, min_supp)
         frequent_itemsets = add_frequent_itemset(frequent_itemsets, L_k)
 
-        print("==Frequent {} itemsets(min_sup= {}%)".format(k, min_supp))
+        print("==Frequent {} itemsets(min_sup={}%)".format(k, min_supp))
         #print(L_k)
         L_k_1 = L_k
         k += 1
@@ -231,27 +261,11 @@ def main(frequent_itemsets_=None):
 
     while not frequent_itemsets_copy.empty():
         support, items = frequent_itemsets_copy.get()
-        L_conf, confidence = calculate_conf(support, items, L_all,L_conf, min_conf)
+        L_conf, confidence = calculate_conf(support, items, L_all, L_conf, min_conf)
 
     confidence_rules = add_confident_itemset(confidence_rules, L_conf)
 
-    with open("output.txt", "w") as f:
-        print("==Frequent itemsets (min_sup={0:.3g}%)".format(min_supp*100), file=f)
-        frequent_itemsets_print = list()
-        while not frequent_itemsets.empty():
-             frequent_itemsets_print = [frequent_itemsets.get()] + frequent_itemsets_print
-
-        confidence_rules_print = list()
-        while not confidence_rules.empty():
-            confidence_rules_print = [confidence_rules.get()] + confidence_rules_print
-
-        for supp, itemset in frequent_itemsets_print:
-            print("{itemset}, {supp:.3f}%".format(itemset=itemset, supp=supp), file=f)
-
-        print("==High-confidence association rules (min_conf={0:.3g}%)".format(min_conf*100), file=f)
-
-        for conf, my_tuple in confidence_rules_print:
-            print(my_tuple[0], "=>", my_tuple[1], "(Conf:", conf, "Supp:", my_tuple[2], ")", file=f)
+    print_output_file(frequent_itemsets, confidence_rules, min_supp, min_conf)
 
 if __name__ == "__main__":
     main()
